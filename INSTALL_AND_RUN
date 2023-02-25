@@ -1,0 +1,29 @@
+#!/usr/bin/env fish
+
+true
+and conda activate base
+
+# IGNORE THE FOLLOWING MESSAGE:
+
+# ==> WARNING: A newer version of conda exists. <==
+#   current version: 22.9.0
+#   latest version: 22.11.1
+# Please update conda by running
+#     conda update -n base -c defaults conda
+
+# DO NOT UPDATE CONDA. LEAVE CONDA AT 22.9.0.
+
+# Reason: If you update to 22.11.1 using `conda update -n base -c defaults conda`:
+# You will get: AttributeError: module 'lib' has no attribute 'X509_V_FLAG_CB_ISSUER_CHECK'
+# But then you can still download the .sh file and reinstall conda 22.9.0 again.
+
+# The following line is to avoid the error: DirectoryNotACondaEnvironmentError: The target directory exists, but it is not a conda environment.
+and rm -rf (conda info --base)/envs/document_manager/
+
+and conda env remove --name document_manager
+and conda create --yes --name document_manager python
+and conda activate document_manager
+
+and pip install --upgrade --requirement requirements.txt
+
+and . RUN
