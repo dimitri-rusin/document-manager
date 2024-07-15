@@ -13,7 +13,9 @@ directory_path = './data'
 for root, dirs, files in os.walk(directory_path):
   for filename in files:
 
-    if filename != 'Steuernummer vom Finanzamt.pdf': continue
+    filename_without_suffix, _ = os.path.splitext(filename)
+    folder_path = f'computed/{filename_without_suffix}'
+    if os.path.exists(folder_path): continue
 
     print(f"Making searchable: {filename}")
     pdf_path = f'data/{filename}'
@@ -70,10 +72,9 @@ for root, dirs, files in os.walk(directory_path):
 
 
     # Create a searchable item (as a folder with two files).
-    filename_without_suffix, _ = os.path.splitext(filename)
-    os.makedirs(f'computed/{filename_without_suffix}', exist_ok = True)
-    shutil.copy(pdf_path, f'computed/{filename_without_suffix}')
-    combined_filename = f"computed/{filename_without_suffix}/{filename_without_suffix}.txt"
+    os.makedirs(folder_path, exist_ok = True)
+    shutil.copy(pdf_path, folder_path)
+    combined_filename = f"{folder_path}/{filename_without_suffix}.txt"
     with open(combined_filename, "w") as f:
       f.write(combined_text)
     print("Done.")
