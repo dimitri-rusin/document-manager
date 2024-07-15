@@ -1,0 +1,3 @@
+.deploy/conda_environment/
+.deploy/miniconda/
+computed/

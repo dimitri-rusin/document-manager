@@ -1,5 +1,0 @@
-#!/usr/bin/env fish
-
-true
-and conda activate document_manager
-and ipython3 details.py

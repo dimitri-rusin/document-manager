@@ -1,4 +1,0 @@
-jupyter
-opencv-python-headless
-pytesseract
-wand
