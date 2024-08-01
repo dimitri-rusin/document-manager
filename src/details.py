@@ -1,6 +1,8 @@
 import cv2
 import os
 import pytesseract
+import fitz  # PyMuPDF
+
 import shutil
 import tempfile
 import wand.image
@@ -8,6 +10,62 @@ import wand.image
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 directory_path = './data'
+
+
+
+# DIRECTLY READING SYMBOLIC INFO FROM PDF
+# ================================================================================
+def extract_text_from_pdf(pdf_path):
+  text = ""
+  pdf_document = fitz.open(pdf_path)
+  for page_num in range(pdf_document.page_count):
+    page = pdf_document.load_page(page_num)
+    text += page.get_text()
+
+  return text
+
+def extract_pdf_metadata(pdf_path):
+  pdf_document = fitz.open(pdf_path)
+  metadata = pdf_document.metadata
+  num_pages = pdf_document.page_count
+  page_info = []
+
+  for page_num in range(num_pages):
+    page = pdf_document.load_page(page_num)
+    size = page.rect
+    rotation = page.rotation
+    images = page.get_images(full=True)
+    page_info.append({
+      "page_num": page_num + 1,
+      "size": size,
+      "rotation": rotation,
+      "num_images": len(images),
+    })
+
+  return metadata, num_pages, page_info
+
+def extract_text_and_metadata_from_pdf(pdf_path):
+  metadata, num_pages, page_info = extract_pdf_metadata(pdf_path)
+
+  pdf_extracted_info = []
+  pdf_extracted_info.append("PDF Metadata:")
+  for key, value in metadata.items():
+      pdf_extracted_info.append(f"{key}: {value}")
+
+  pdf_extracted_info.append(f"\nNumber of Pages: {num_pages}", )
+
+  pdf_extracted_info.append("\nPage Information:")
+  for info in page_info:
+      pdf_extracted_info.append(str(info))
+
+  text_content = extract_text_from_pdf(pdf_path)
+  pdf_extracted_info.append(text_content)
+
+  pdf_extracted_info = '\n'.join(pdf_extracted_info)
+  return pdf_extracted_info
+# ================================================================================
+
+
 
 # Iterate through the directory
 for root, dirs, files in os.walk(directory_path):
@@ -20,8 +78,12 @@ for root, dirs, files in os.walk(directory_path):
     print(f"Making searchable: {filename}")
     pdf_path = f'data/{filename}'
 
+    metadata_and_text = extract_text_and_metadata_from_pdf(pdf_path)
+
     # Initialize the combined text
     combined_text = f"{pdf_path}\n"
+    combined_text += "========================================================\n"
+    combined_text += metadata_and_text
     combined_text += "========================================================\n"
 
     # Read the PDF and convert pages to images
