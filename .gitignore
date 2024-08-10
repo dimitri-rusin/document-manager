@@ -1,3 +1,4 @@
 .deploy/conda_environment/
 .deploy/Miniconda3/
 computed/
+data/
