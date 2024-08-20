@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Check if the Miniconda3 directory exists
+if [ ! -d ".python/Miniconda3" ]; then
+  echo -e "Found no Miniconda3 folder. First run:\n.python/BUILD"
+  exit 1
+fi
+
+# Initialize Conda for Fish shell
+eval "$(.python/Miniconda3/bin/conda shell.bash hook)"
+
+# Activate the Conda environment
+conda activate .python/venv/

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MINICONDA_DIR=".python/Miniconda3"
+
+# Clean up any previous Conda environment and build targets
+rm -rf .python/venv/
+rm -rf $MINICONDA_DIR

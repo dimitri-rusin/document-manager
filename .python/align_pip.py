@@ -41,7 +41,7 @@ def main(file_path):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Update package versions in a file with the installed versions.')
-  parser.add_argument('--file_path', default='.deploy/pip.txt', type=str, help='The path to the file containing package names and versions.')
+  parser.add_argument('--file_path', default='.python/pip.txt', type=str, help='The path to the file containing package names and versions.')
   args = parser.parse_args()
 
   main(args.file_path)

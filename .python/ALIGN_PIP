@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Exit immediately on errors, treat unset variables as an error, and fail on error in any pipeline
+set -euo pipefail
+
+# Check if the Miniconda3 directory exists
+if [ ! -d ".python/Miniconda3" ]; then
+  echo -e "Found no Miniconda3 folder. First run:\n.python/BUILD"
+  exit 1
+fi
+
+eval "$(.python/Miniconda3/bin/conda shell.bash hook)"
+conda activate .python/venv/
+python .python/align_pip.py

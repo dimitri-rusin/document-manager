@@ -12,19 +12,29 @@ if [[ "${@: -1}" == "--verbose" ]]; then
   set -- "${@:1:$(($#-1))}"  # Remove the last argument (--verbose)
 fi
 
-
 # Initialize and update git submodules
 if [ -d .git ]; then
   git submodule init
   git submodule update
 fi
 
-
 # Define the directory for local Miniconda installation
-MINICONDA_DIR=".deploy/Miniconda3"
+MINICONDA_DIR=".python/Miniconda3"
+
+# Check if .python/venv/ exists
+if [ -d ".python/venv/" ]; then
+  echo ".python/venv/ exists. CLEAN first. Exiting."
+  exit 1
+fi
+
+# Check if $MINICONDA_DIR exists
+if [ -d "$MINICONDA_DIR" ]; then
+  echo "$MINICONDA_DIR exists. CLEAN first. Exiting."
+  exit 1
+fi
 
 # Clean up any previous Conda environment and build targets
-rm -rf .deploy/conda_environment/
+rm -rf .python/venv/
 rm -rf $MINICONDA_DIR
 
 # Install Miniconda locally
@@ -33,23 +43,14 @@ bash /tmp/Miniconda3.sh -b -p $MINICONDA_DIR
 rm /tmp/Miniconda3.sh
 
 # Initialize conda in the current shell (without modifying any shell configuration files)
-eval "$(.deploy/Miniconda3/bin/conda shell.bash hook)"
+eval "$(.python/Miniconda3/bin/conda shell.bash hook)"
 
-
-
-
-# Activate the base Conda environment
-conda activate base
-
-# Clean up any previous Conda environment and build targets
-rm -rf .deploy/conda_environment/
-
-# Create and activate a new Conda environment based on .deploy/conda.yaml configuration
-conda env create --prefix .deploy/conda_environment/ --file .deploy/conda.yaml
-conda activate .deploy/conda_environment/
+# Create and activate a new Conda environment based on .python/Miniconda3.yaml configuration
+conda env create --prefix .python/venv/ --file .python/Miniconda3.yaml
+conda activate .python/venv/
 
 # Install Python dependencies from the requirements file
-pip install --requirement .deploy/pip.txt
+pip install --requirement .python/pip.txt
 
 # conda env config vars list
-# conda env update --file .deploy/conda.yaml --prune
+# conda env update --file .python/Miniconda3.yaml --prune

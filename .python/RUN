@@ -3,6 +3,12 @@
 # Exit immediately on errors, treat unset variables as an error, and fail on error in any pipeline
 set -euo pipefail
 
+# Check if the Miniconda3 directory exists
+if [ ! -d ".python/Miniconda3" ]; then
+  echo -e "Found no Miniconda3 folder. First run:\n.python/BUILD"
+  exit 1
+fi
+
 # Customizing the PS4 variable to show expanded variables
 export PS4='+ \e[36m${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }$ \e[m'
 
@@ -12,10 +18,13 @@ if [[ "${@: -1}" == "--verbose" ]]; then
   set -- "${@:1:$(($#-1))}"  # Remove the last argument (--verbose)
 fi
 
-eval "$(.deploy/Miniconda3/bin/conda shell.bash hook)"
-# which conda
-conda activate .deploy/conda_environment/
+eval "$(.python/Miniconda3/bin/conda shell.bash hook)"
+conda activate .python/venv/
+
+# A one-liner for the FISH shell:
+# eval .python/Miniconda3/bin/conda "shell.fish" "hook" | source; and conda activate .python/venv/
 
 
 
+# Modify the path to a Python script that is the entry script to your project:
 python3 src/details.py

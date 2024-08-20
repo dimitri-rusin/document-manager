@@ -1,4 +1,4 @@
-.deploy/conda_environment/
-.deploy/Miniconda3/
+.python/Miniconda3/
+.python/venv/
 computed/
 data/
