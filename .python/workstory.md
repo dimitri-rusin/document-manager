@@ -12,10 +12,14 @@ screen -dmS ui bash -c 'cd ../document-manager-ui && npm run dev'
 
 
 ```sh
+screen -ls
+# No Sockets found in /run/screen/S-dimitri.
+
 screen -r api
 screen -r ui
 
 # Ctrl+A D to detach
+# Ctrl+C to quit
 ```
 
 ````
