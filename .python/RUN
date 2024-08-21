@@ -25,16 +25,5 @@ conda activate .python/venv/
 # eval .python/Miniconda3/bin/conda "shell.fish" "hook" | source; and conda activate .python/venv/
 
 
-
-# Modify the path to a Python script that is the entry script to your project:
-set +e
-
-for i in {1..12}
-do
-  python3 src/details.py
-  if [ $? -eq 0 ]; then
-    break
-  fi
-done
-
-set -e
+screen -dmS api bash -c 'source .python/ACTIVATE_BASH && python src/api.py'
+screen -dmS ui bash -c 'cd ../document-manager-ui && npm run dev'

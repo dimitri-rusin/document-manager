@@ -2,6 +2,39 @@
 
 
 
+
+
+```sh
+screen -dmS api bash -c 'source .python/ACTIVATE_BASH && python src/api.py'
+screen -dmS ui bash -c 'cd ../document-manager-ui && npm run dev'
+```
+
+
+
+```sh
+screen -r api
+screen -r ui
+
+# Ctrl+A D to detach
+```
+
+````
+# Modify the path to a Python script that is the entry script to your project:
+set +e
+
+for i in {1..12}
+do
+  python3 src/details.py
+  if [ $? -eq 0 ]; then
+    break
+  fi
+done
+
+set -e
+````
+
+
+
 Check which languages we have
 ```sh
 tesseract --list-langs
