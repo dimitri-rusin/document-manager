@@ -1,7 +1,10 @@
-ipykernel==6.29.5
 PyMuPDF==1.24.9
+fastapi==0.112.1
 inspectify==0.0.2
+ipykernel==6.29.5
 jupyter==1.0.0
 opencv-python-headless==4.10.0.84
 pytesseract==0.3.10
+python-dotenv==1.0.1
+uvicorn==0.30.6
 wand==0.6.13
