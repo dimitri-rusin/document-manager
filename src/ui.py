@@ -1,3 +1,4 @@
+import sys
 from fastapi import FastAPI, HTTPException, Query
 from typing import List, Dict, Any
 import os
@@ -11,10 +12,15 @@ load_dotenv()
 # Initialize FastAPI app
 app = FastAPI()
 
-# Load the path from environment variable
+# Load the path from environment variables
 DOCUMENTS_PATH = os.getenv("DM__DOCUMENTS_PATH")
+UPDATED_SCRIPT_PATH = os.getenv("DM__UPDATER_PATH")
+
 if not DOCUMENTS_PATH:
     raise RuntimeError("DOCUMENTS_PATH environment variable is not set.")
+
+if not UPDATED_SCRIPT_PATH:
+    raise RuntimeError("DM__UPDATER_PATH environment variable is not set.")
 
 # Load default configuration for context lines from environment variables
 try:
@@ -85,6 +91,32 @@ async def open_in_sublime(filepath: str = Query(..., description="The path of th
         return {"message": f"Opened {filepath} at line {line} in Sublime Text"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to open file in Sublime Text: {str(e)}")
+
+@app.post("/run-script/")
+async def run_script():
+    if not os.path.exists(UPDATED_SCRIPT_PATH):
+        raise HTTPException(status_code=404, detail="Script file not found")
+
+    try:
+        # Run the script as a new process and stream its output to the console
+        process = subprocess.Popen(
+            ["python", os.path.abspath(UPDATED_SCRIPT_PATH)],
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            text=True
+        )
+
+        # Wait for the process to complete
+        process.communicate()
+
+        if process.returncode != 0:
+            raise HTTPException(status_code=500, detail="Script encountered an error during execution")
+
+        return {"message": "Script executed successfully"}
+
+    except Exception as e:
+        print(f"Error running script: {str(e)}")  # Print the error for debugging
+        raise HTTPException(status_code=500, detail=f"Failed to run script: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

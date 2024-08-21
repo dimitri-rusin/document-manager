@@ -1,3 +1,4 @@
+.env
 .python/Miniconda3/
 .python/venv/
 computed/
