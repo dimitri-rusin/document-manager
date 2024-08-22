@@ -1,10 +1,11 @@
-import sys
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import os
+import re
 import subprocess
-from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
+import sys
 
 # Load environment variables from .env file
 load_dotenv()
@@ -46,9 +47,15 @@ app.add_middleware(
 
 @app.get("/search/", response_model=Dict[str, List[Dict[str, Any]]])
 async def search(
-    keyword: str = Query(..., min_length=1, description="The keyword to search for")
+    keyword: str = Query(..., min_length=1, description="The regular expression to search for")
 ):
     search_results = {}
+
+    # Compile the regular expression from the keyword
+    try:
+        regex = re.compile(keyword, re.IGNORECASE)  # Compile with case-insensitive flag
+    except re.error as e:
+        raise HTTPException(status_code=400, detail=f"Invalid regular expression: {str(e)}")
 
     for root, dirs, files in os.walk(DOCUMENTS_PATH):
         for file in files:
@@ -57,23 +64,31 @@ async def search(
             file_path = os.path.join(root, file)
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-                    for i, line in enumerate(lines):
-                        if keyword.lower() in line.lower():
-                            if file_path not in search_results:
-                                search_results[file_path] = []
+                    content = f.read()  # Read the entire file content
+                    matches = list(regex.finditer(content))  # Find all matches
 
-                            # Calculate the start and end line indices
-                            start_line = max(i - DEFAULT_LINES_BEFORE, 0)
-                            end_line = min(i + DEFAULT_LINES_AFTER + 1, len(lines))
+                    if matches:
+                        search_results[file_path] = []
 
-                            # Collect the relevant lines
-                            context_lines = lines[start_line:end_line]
+                        for match in matches:
+                            # Get the match start and end positions in the content
+                            start, end = match.span()
+
+                            # Convert the start and end positions to line numbers
+                            start_line = content.count('\n', 0, start)
+                            end_line = content.count('\n', 0, end)
+
+                            # Extract context lines
+                            lines = content.splitlines()
+                            context_start = max(start_line - DEFAULT_LINES_BEFORE, 0)
+                            context_end = min(end_line + DEFAULT_LINES_AFTER + 1, len(lines))
+                            context_lines = lines[context_start:context_end]
 
                             search_results[file_path].append({
-                                "line_number": i + 1,  # line_number as an integer
+                                "line_number": start_line + 1,  # line_number as an integer
                                 "context": [ln.strip() for ln in context_lines]  # Strip to remove extra whitespace
                             })
+
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Error reading file {file_path}: {str(e)}")
 

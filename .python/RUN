@@ -27,3 +27,4 @@ conda activate .python/venv/
 
 screen -dmS api bash -c 'source .python/ACTIVATE_BASH && python src/api.py'
 screen -dmS ui bash -c 'cd ../document-manager-ui && npm run dev'
+brave-browser http://localhost:5173/
